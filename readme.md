@@ -3,9 +3,9 @@ A python app for tracking habits. Interface using tkinter, sqlite via SQLAlchemy
 
 ### Useful links
 - [Changelog](/CHANGELOG.md)
-- [App requirements](/documentation/requirements.md) <br>
-- [Time tracking](/documentation/timetracking.md)
-- [AI Usage](/documentation/ai.md)
+- [App requirements](/docs/requirements.md) <br>
+- [Time tracking](/docs/timetracking.md)
+- [AI Usage](/docs/ai.md)
 
 ### Installation
 
