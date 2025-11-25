@@ -9,8 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1] - 2025-11-25
 
-### Added
-- TBD
+### Changed
+- Internal data handling methods
+- Updated Documentation
 
 ## [0.1.0] - 2025-11-18
 
