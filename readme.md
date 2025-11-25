@@ -24,7 +24,7 @@ indolent is a python app for tracking habits. Currently habits can be created wi
 1. Start the app: `poetry run invoke start`
 
 ### Testing
-- Run unit tests and coverage `poetry run invoke coverage`
-- Create a coverage report `poetry run invoke coverage-report`
-- Run pylint `poetry run invoke lint`
-- Format all python files using black and isort `poetry run invoke coverage-report`
+- Run unit tests and coverage: `poetry run invoke coverage`
+- Create a coverage report: `poetry run invoke coverage-report`
+- Run pylint: `poetry run invoke lint`
+- Format all python files using black and isort: `poetry run invoke coverage-report`
