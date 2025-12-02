@@ -1,4 +1,4 @@
-"""Define a model for habit."""
+"""Define an SQLAlchemy model for a habit."""
 
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -6,7 +6,7 @@ from db import Base
 
 
 class Habit(Base):
-    """Define a model for habit."""
+    """Define an SQLAlchemy model for a habit."""
 
     __tablename__ = "habits"
 
