@@ -1,6 +1,4 @@
-"""main program"""
-
-import tkinter as tk
+"""Run the app"""
 
 from db import Base, engine, session
 from repositories.habit_repository import HabitRepository
@@ -17,8 +15,7 @@ def main():
     service = HabitService(repo)
 
     # tkinter ui
-    root = tk.Tk()
-    app = Interface(root, service)
+    app = Interface(service)
     app.run()
 
 
