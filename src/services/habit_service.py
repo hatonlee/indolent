@@ -10,11 +10,13 @@ class HabitService:
         self._repo = repo
 
     def get_all(self):
+        """Get all habits."""
         return self._repo.get_all()
 
     def add(self, habit_data):
+        """Add a new habit"""
         if self._repo.get_by_name(habit_data["name"]):
-            raise ValueError("Habit already exists.")
+            raise ValueError("Habit with the same name already exists.")
 
         return self._repo.add(habit_data)
 
