@@ -13,12 +13,18 @@ class HabitService:
         """Get all habits."""
         return self._repo.get_all()
 
+    def get_all_undone(self):
+        return self._repo.get_undone()
+
     def add(self, habit_data):
         """Add a new habit"""
         if self._repo.get_by_name(habit_data["name"]):
             raise ValueError("Habit with the same name already exists.")
 
         return self._repo.add(habit_data)
+
+    def mark_done(self, habit_id: int):
+        return self._repo.mark_done(habit_id)
 
 
 default_habit_service = HabitService()
