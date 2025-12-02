@@ -1,5 +1,7 @@
 """Repository layer class for habit."""
 
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
@@ -18,6 +20,15 @@ class HabitRepository:
         with self._session() as session:
             habits = session.scalars(select(Habit))
             return list(habits)
+
+    def get_undone(self):
+        """Get all habits whose last_done is not the current iteration"""
+        with self._session() as session:
+            habits = list(session.scalars(select(Habit)))
+            for habit in habits:
+                if datetime.now() - habit.last_done < habit.frequency:
+                    habits.pop(habit)
+            return habits
 
     def get(self, habit_id: int = None):
         """Get habit with a specific id. The first habit is returned if id is not specified"""
@@ -39,6 +50,14 @@ class HabitRepository:
         with self._session.begin() as session:
             habit = Habit(**habit_data)
             session.add(habit)
+            return habit
+
+    def mark_done(self, habit_id: int):
+        with self._session.begin() as session:
+            habit = session.scalar(select(Habit).where(Habit.id == habit_id))
+            if not habit:
+                raise ValueError(f"Habit with id '{habit_id}' not found")
+            habit.last_done = datetime.now()
             return habit
 
 
