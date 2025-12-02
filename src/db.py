@@ -1,4 +1,4 @@
-"""creates a session for the database"""
+"""Create an SQLAlchemy sessionmaker instance for the database file."""
 
 import os
 
