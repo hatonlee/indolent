@@ -1,5 +1,5 @@
 # AI usage in development
-Using ChatGPT GPT-5 through [ChatGPT](https://chatgpt.com) and GPT-4-o-mini/GPT-4.1 through [CurreChat](https://curre.helsinki.fi/chat).
+Used ChatGPT GPT-5 via [ChatGPT](https://chatgpt.com) and GPT-4-o-mini/GPT-4.1 via [CurreChat](https://curre.helsinki.fi/chat).
 
 ### [0.1.1] - 2025-11-25
 - For creating method to convert SQLAlchemy ORM-objects to dictionaries.
