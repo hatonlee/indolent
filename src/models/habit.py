@@ -8,6 +8,8 @@ from db import Base
 
 
 class Habit(Base):
+    """SQLAlchemy model for a habit."""
+
     __tablename__ = "habits"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -19,7 +21,7 @@ class Habit(Base):
 
     def __repr__(self):
         return f"Habit(\
-            id={self.id}, name={self.name}, description={self.description},\
+            name={self.name}, description={self.description},\
             frequency{self.frequency}, start_time={self.start_time},\
             frequency={self.frequency}, last_done={self.last_done}\
         )"

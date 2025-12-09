@@ -1,8 +1,8 @@
 """Repository layer class for habit."""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import sessionmaker
 
 from db import session as default_session
@@ -16,19 +16,13 @@ class HabitRepository:
         self._session = session
 
     def get_all(self):
-        """Get all habits."""
-        with self._session() as session:
-            habits = session.scalars(select(Habit))
-            return list(habits)
-
-    def get_undone(self):
-        """Get all habits whose last_done is not the current iteration"""
+        """Get all habits with their done status."""
         with self._session() as session:
             habits = list(session.scalars(select(Habit)))
-            for habit in habits:
-                if datetime.now() - habit.last_done < habit.frequency:
-                    habits.pop(habit)
-            return habits
+
+        for habit in habits:
+            habit.done = self._get_done_status(habit)
+        return habits
 
     def get(self, habit_id: int = None):
         """Get habit with a specific id. The first habit is returned if id is not specified"""
@@ -53,12 +47,26 @@ class HabitRepository:
             return habit
 
     def mark_done(self, habit_id: int):
+        """Mark a habit as done by updating its last_done timestamp."""
         with self._session.begin() as session:
             habit = session.scalar(select(Habit).where(Habit.id == habit_id))
             if not habit:
                 raise ValueError(f"Habit with id '{habit_id}' not found")
             habit.last_done = datetime.now()
             return habit
+
+    def delete_all(self):
+        """Delete all habits from the database."""
+        with self._session.begin() as session:
+            session.execute(delete(Habit))
+
+    def _get_done_status(self, habit: Habit):
+        """Determine if a habit is done based on its last_done and frequency."""
+        if habit.last_done:
+            time_diff = datetime.now() - habit.last_done
+            frequency = timedelta(minutes=int(habit.frequency))
+            return time_diff < frequency
+        return False
 
 
 default_habit_repository = HabitRepository()
