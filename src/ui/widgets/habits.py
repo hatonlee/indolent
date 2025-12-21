@@ -175,7 +175,7 @@ class HabitsList(tk.Frame):
         self._complete_cb = complete_cb
         self.habits = [] if habits is None else habits
         self.habit_frames = []
-        self.config(padx=10, pady=10, background="orange")
+        self.config(padx=10, pady=10, bg="#E0E7FF")
         self._render()
 
     def _render(self):

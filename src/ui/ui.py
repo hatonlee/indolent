@@ -74,7 +74,7 @@ class MainLayout(Layout):
     def _render_habits_frame(self):
         """Render the habits list frame."""
         self.habits_frame = HabitsFrame(self.root, complete_cb=self._complete)
-        self.habits_frame.configure(padx=5, pady=5, bg="blue")
+        self.habits_frame.configure(padx=5, pady=5, bg="#F7F9FC")
         self.habits_frame.grid(row=1, column=0, sticky="nsew")
         self.habits_frame.columnconfigure(0, weight=1)
         self.habits_frame.rowconfigure(0, weight=1)
