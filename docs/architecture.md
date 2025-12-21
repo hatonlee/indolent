@@ -5,7 +5,7 @@ The application is structured into two key constructs:
 - Application Logic
 - User Interface
 
-Application logic provides the functionality of the appliocation, while the user interface handles user interactions.
+Application logic provides the functionality of the application, while the user interface handles user interactions.
 
 ## Application Logic
 Application logic follows the repository design principle with 3 main abstraction layers:
@@ -14,6 +14,9 @@ Application logic follows the repository design principle with 3 main abstractio
 - Service
 
 ```mermaid
+flowchart TD
+    C[Service] --> B[Repository]
+    B --> A[Model]
 ```
 
 ### Model
@@ -69,7 +72,6 @@ Provides a form for users to create new habits by entering the required details.
 
 ### User Interface and Application Logic Interaction
 All interaction with the application logic is done through the `HabitService` class.
-
 
 
 ## Application Flow
