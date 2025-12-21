@@ -7,11 +7,13 @@ from repositories.habit_repository import HabitRepository
 from services.habit_service import HabitService
 from ui.ui import UI
 
+DB_PATH = Path(__file__).parent.parent / "database.db"
 
-def main():
+
+def main(db_path: Path) -> None:
+    """Initialize and run the app"""
     # initialize database
-    DB_PATH = Path(__file__).parent.parent / "database.db"
-    db = DB(DB_PATH.as_posix())
+    db = DB(db_path.as_posix())
     db.create_metadata()
 
     # initialize service
@@ -24,4 +26,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(DB_PATH)
