@@ -1,4 +1,4 @@
-"""API for performing CRUD operations on habits in the database."""
+"""Repository layer class for interacting with habits in the database."""
 
 from datetime import datetime
 
@@ -10,7 +10,7 @@ from models.habit import Completion, Habit
 
 
 class HabitRepository:
-    """API for performing CRUD operations on habits in the database."""
+    """Repository layer class for interacting with habits in the database."""
 
     def __init__(self, db: DB):
         self._db = db
@@ -28,6 +28,7 @@ class HabitRepository:
         return stmt
 
     def get(self, habit_id: int | None = None) -> Habit | None:
+        """Get a habit by ID, or the first habit if no ID is provided."""
         with self._db.session() as session:
             stmt = select(Habit).options(joinedload(Habit.completions))
             if habit_id is None:
@@ -39,6 +40,7 @@ class HabitRepository:
         return habit
 
     def find(self, **filters: str) -> list[Habit]:
+        """Find all habits matching the given filters."""
         with self._db.session() as session:
             stmt = self._build_query(**filters)
             stmt = stmt.options(joinedload(Habit.completions))
@@ -47,7 +49,7 @@ class HabitRepository:
         return habits
 
     def add(self, habit_data: dict) -> Habit:
-        """Add a new habit to the database"""
+        """Add a new habit to the database."""
         with self._db.begin() as session:
             habit = Habit(**habit_data)
             session.add(habit)
@@ -59,7 +61,10 @@ class HabitRepository:
         return habit
 
     def complete(self, habit_id: int, time: datetime) -> Habit:
-        """Add a completion entry for the habit if one does not already exist for the specified interval."""
+        """Add a completion entry for the habit.
+
+        If the current interval is already completed, does nothing.
+        """
         with self._db.begin() as session:
             habit = session.scalar(select(Habit).where(Habit.id == habit_id))
             if not habit:

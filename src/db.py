@@ -35,12 +35,13 @@ class DB:
         self._sessionmaker = sessionmaker(bind=self._engine)
 
     def session(self) -> Session:
+        """Get a new session with expire_on_commit set to False."""
         session = self._sessionmaker()
         session.expire_on_commit = False
         return session
 
     def begin(self) -> ContextManager[Session]:
-        """Wrapper around sessionmaker's session.begin() with expire_on_commit applied."""
+        """Get a new context manager with a session with expire_on_commit set to False."""
 
         @contextmanager
         def _begin():

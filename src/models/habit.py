@@ -1,4 +1,4 @@
-"""Define models for habits and their completions."""
+"""SQLALchemy ORM models for habits and their completions."""
 
 from datetime import datetime, timedelta
 
@@ -23,7 +23,8 @@ class Habit(Base):
     )
 
     def __repr__(self):
-        return f"<Habit(id={self.id}, name={self.name!r}, start_time={self.start_time!r}), frequency={self.frequency}, done={self.completed()})>"
+        return f"<Habit(id={self.id}, name={self.name!r}, start_time={self.start_time!r}), \
+        frequency={self.frequency}, done={self.completed()})>"
 
     def completed(self, interval: int | datetime = datetime.now()) -> bool:
         """Return whether the habit has been completed within a specific `interval`.

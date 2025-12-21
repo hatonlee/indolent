@@ -1,3 +1,5 @@
+""" "UI module for layout management."""
+
 import tkinter as tk
 from datetime import datetime
 
@@ -20,6 +22,7 @@ class WindowManager:
         self.layouts[name] = layout
 
     def switch(self, name: str):
+        """Switch to a registered layout."""
         layout = self.layouts.get(name)
         if not layout:
             raise ValueError(f"Layout '{name}' not found.")
@@ -48,7 +51,7 @@ class Layout:
 
 
 class MainLayout(Layout):
-    """Main application layout containing habit list and actions."""
+    """Main application layout containing an action bar and habits list."""
 
     def __init__(self, root: tk.Tk, habit_service: HabitService):
         super().__init__(root)
@@ -57,16 +60,19 @@ class MainLayout(Layout):
         self.root.rowconfigure(1, weight=1)
 
     def render(self):
+        """Render the main layout."""
         self._render_actions_frame()
         self._render_habits_frame()
         self._refresh_habits()
 
     def _render_actions_frame(self):
+        """Render the action bar frame."""
         actions_frame = ActionBar(self.root, self._open_create_window)
         actions_frame.grid(row=0, column=0, sticky="ew")
         actions_frame.columnconfigure(0, weight=1)
 
     def _render_habits_frame(self):
+        """Render the habits list frame."""
         self.habits_frame = HabitsFrame(self.root, complete_cb=self._complete)
         self.habits_frame.configure(padx=5, pady=5, bg="blue")
         self.habits_frame.grid(row=1, column=0, sticky="nsew")
@@ -74,23 +80,27 @@ class MainLayout(Layout):
         self.habits_frame.rowconfigure(0, weight=1)
 
     def _refresh_habits(self):
+        """Re-render the entire habit list widget."""
         self.habits_frame.render(self._service.find())
 
     def _complete(self, habit_id: int, habit_frame: HabitFrame):
+        """Mark a habit as completed and re-render its status widget."""
         habit = self._service.complete(habit_id, datetime.now())
         habit_frame.habit = habit
         habit_frame.refresh_status()
 
     def _add_habit(self, habit_data: dict[str, str | list]):
+        """Add a new habit and append it to the habits list."""
         new_habit = self._service.add(habit_data)
         self.habits_frame.append_habit(new_habit)
 
     def _open_create_window(self):
+        """Open the create habit window."""
         CreateHabitWindow(self.root, self._add_habit)
 
 
 class UI:
-    """Main UI class to initialize and run the application."""
+    """Main UI class to initialize and run the interface."""
 
     def __init__(self, habit_service: HabitService):
         self._habit_service = habit_service
