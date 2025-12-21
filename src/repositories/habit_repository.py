@@ -1,4 +1,4 @@
-"""Repository layer class for habits."""
+"""API for performing CRUD operations on habits in the database."""
 
 from datetime import datetime
 
@@ -51,6 +51,10 @@ class HabitRepository:
         with self._db.begin() as session:
             habit = Habit(**habit_data)
             session.add(habit)
+            session.flush()
+
+            # load completions
+            _ = habit.completions
 
         return habit
 
