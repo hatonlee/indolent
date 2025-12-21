@@ -1,115 +1,135 @@
+# Architecture
+
+## Structure Overview
+The application is structured into two key constructs:
+- Application Logic
+- User Interface
+
+Application logic provides the functionality of the appliocation, while the user interface handles user interactions.
+
+## Application Logic
+Application logic follows the repository design principle with 3 main abstraction layers:
+- Model
+- Repository
+- Service
+
+```mermaid
+```
+
+### Model
+Models represent entities in the application. The `Habit` model defines the structure of a habit. The `Completion` model tracks when a habit has been completed.
+
 ```mermaid
 classDiagram
     class Habit {
-        +id: int
+        -id: int
         +name: str
         +description: str
+        +start_time: datetime
+        +frequency: timedelta
+        +completions: list[Completion]
     }
 
-    class HabitRepository {
-        -db_connection
-        +add(habit: Habit)
-        +get_all(): List[Habit]
+    class Completion {
+        -id: int
+        +timestamp: datetime
+        -habit_id: int
+        +habit: Habit
     }
 
-    class HabitService {
-        -habit_repository: HabitRepository
-        +add(habit: Habit)
-        +get_all(): List[Habit]
-    }
-
-    class Interface {
-        -service: HabitService
-        +run()
-    }
-
-    class UI {
-        -service: HabitService
-        +start()
-    }
-
-    class UIComponent {
-        +render()
-    }
-
-    class HabitsList {
-        +render()
-    }
-
-    class NewHabitForm {
-        +render()
-    }
-
-    class View {
-        +show()
-    }
-
-    class CreateView {
-        +show()
-    }
-
-    class HabitsView {
-        +show()
-    }
-
-    class DB {
-    }
-
-    class App {
-        -db: DB
-        -ui: Interface
-        +run()
-    }
-
-    HabitRepository "1" --> "0..*" Habit : uses
-    HabitService "1" --> "1" HabitRepository : uses
-    Interface "1" --> "1" HabitService : uses
-    UI "1" --> "1" HabitService : uses
-    UIComponent <|-- HabitsList
-    UIComponent <|-- NewHabitForm
-    View <|-- CreateView
-    View <|-- HabitsView
-    UI "1" --> "0..*" UIComponent : contains
-    UI "1" --> "0..*" View : contains
-    App "1" --> "1" DB : uses
-    App "1" --> "1" Interface : uses
+    Habit "1" --> "*" Completion
 ```
+
+### Repository
+The repository layer handles data persistence and access. The `HabitRepository` class provides methods for performing CRUD operations on the `Habit` model. `HabitRepository` uses an SQLite database via SQLAlchemy ORM.
+
+### Service
+The service layer contains all logic required by the user interface. The `HabitService` class uses `HabitRepository` for CRUD operations. Currently it does not implement additional logic, only some basic error handling.
+
+
+## User Interface
+The user interface is implemented using `tkinter`. There are two main views:
 
 ```mermaid
-graph TD
-    root["/ (indolent)"]
-    subgraph src
-        app["app.py"]
-        db["db.py"]
-        models_dir["models/"]
-        repos_dir["repositories/"]
-        services_dir["services/"]
-        ui_dir["ui/"]
-    end
-
-    models_dir --> habit_py["habit.py"]
-    repos_dir --> habit_repo["habit_repository.py"]
-    services_dir --> habit_service["habit_service.py"]
-    ui_dir --> ui_py["ui.py"]
-    ui_dir --> ui_components["components/"]
-    ui_dir --> ui_views["views/"]
-    ui_components --> habits_list["habits_list.py"]
-    ui_components --> new_habit_form["new_habit_form.py"]
-    ui_views --> create_view["create.py"]
-    ui_views --> habits_view["habits.py"]
-
-    tests_dir["tests/"]
-    tests_dir --> models_test["models/habit_model_test.py"]
-    tests_dir --> repos_test["repositories/test_habit_repository.py"]
-    tests_dir --> services_test["services/test_habit_service.py"]
-
-    docs_dir["docs/"]
-    docs_dir --> arch_md["architecture.md"]
-
-    root --> src
-    root --> tests_dir
-    root --> docs_dir
-    root --> license["LICENSE"]
-    root --> readme["README.md"]
-    root --> pyproject["pyproject.toml"]
+flowchart TD
+    A[Main View] --> B[New Habit View]
+    B --> A
 ```
+
+### Main View
+Displays a list of habits with their information and status.
+Allows users to mark habits as completed for the current interval.
+
+### New Habit View
+Provides a form for users to create new habits by entering the required details.
+
+
+### User Interface Flow
+
+
+### User Interface and Application Logic Interaction
+All interaction with the application logic is done through the `HabitService` class.
+
+
+
+## Application Flow
+
+### Create a New Habit
+
+```mermaid
+sequenceDiagram
+    participant UI as UI
+    participant Service as HabitService
+    participant Repo as HabitRepository
+    participant DB as Database (SQLALchemy)
+    participant Model as Habit model
+
+    UI->>Service: create_habit(habit_data)
+    Service->>Repo: add(habit_data)
+    Repo->>DB: add(Habit)
+    DB-->>Model: Habit(habit_data)
+    Model-->>DB: Habit
+    DB-->>DB: add(Habit)
+    DB-->>Repo: return Habit (detached)
+    Repo-->>Service: return Habit
+    Service-->>UI: return Habit
+    UI->>UI: add habit to list / refresh UI
+```
+
+Description:
+- The UI gets and validates form input and calls `HabitService.create_habit(habit_data)`.
+- `HabitService.create_habit` calls `HabitRepository.add(habit_data)`.
+- `HabitRepository.add(habit_data)` constructs a `Habit` ORM object, loads its `completions` relationship and returns a detached `Habit` object.
+- The service receives the `Habit` and returns it to the UI, which adds it to the habit list and refreshes the view.
+
+### Mark a Habit As Done
+
+```mermaid
+sequenceDiagram
+    participant UI as UI
+    participant Service as HabitService
+    participant Repo as HabitRepository
+    participant DB as Database (SQLALchemy)
+    participant Model as Habit model
+
+    UI->>Service: mark_completed(habit_id)
+    Service->>Repo: complete(habit_id, time=now)
+    Repo->>DB: complete(habit_id, time)
+    DB-->>DB: get(Habit)
+    DB-->>Model: Completion(habit_id, time)
+    Model-->>DB: Completion
+    DB-->>DB: add(Completion)
+    DB-->>Repo: return Habit
+    Repo-->>Service: return Habit
+    Service-->>UI: return Habit
+    UI->>UI: update habit status / refresh UI
+```
+
+Description:
+- The UI triggers `HabitService.mark_completed(habit_id)` when the "complete" button is pressed.
+- `HabitService.mark_completed(habit_id)` calls `HabitRepository.complete(habit_id, time=now)`.
+- `HabitRepository.complete(habit_id, time)` loads the `Habit` and its `Completion`s, then calls `habit.completed(time)` to determine whether a completion already exists for the corresponding interval.
+- If the habit has not yet been completed for that interval, the repository appends a new `Completion(time=time)` to `habit.completions`, and returns the updated `Habit` object.
+- The service returns the updated Habit object to the UI, which updates the habit completion status and refreshes the view.
+
+Generally the interaction between the user interface and application logic follows the same pattern. Changes in the UI trigger service methods, which in turn call repository methods to interact with the database. The results are passed back up to the UI for display and updates.
