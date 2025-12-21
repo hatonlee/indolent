@@ -1,10 +1,10 @@
 # AI usage in development
-Used ChatGPT GPT-5 via [ChatGPT](https://chatgpt.com) and GPT-4-o-mini/GPT-4.1 via [CurreChat](https://curre.helsinki.fi/chat) and the GitHub Copilot -extension in Visual Studio Code.
+Used ChatGPT GPT-5 via [ChatGPT](https://chatgpt.com) and GPT-4-o-mini/GPT-4.1 via [CurreChat](https://curre.helsinki.fi/chat) and the GitHub Copilot -extension in Visual Studio Code. Code completions and suggestions via GitHub Copilot were used moderately.
 
 
 ##### [0.1.4] - 2025-12-21
 - For improving mermaid diagrams in the architecture documentation.
-- For designing the UI components and views structure including the WindowManager class.
+- For designing the structure of UI components and layouts and creating the WindowManager class.
 
 ### [0.1.3] - 2025-12-09
 - For planning the refactoring of the ui into components and views. Used the copilot chat "Plan"-feature to develop a plan and structure for the refactoring.
@@ -12,7 +12,7 @@ Used ChatGPT GPT-5 via [ChatGPT](https://chatgpt.com) and GPT-4-o-mini/GPT-4.1 v
 - For expanding the class diagram and adding a file tree diagram.
 
 ### [0.1.2] - 2025-12-02
-- For nothing
+- For only code completions.
 
 ### [0.1.1] - 2025-11-25
 - For creating method to convert SQLAlchemy ORM-objects to dictionaries.
