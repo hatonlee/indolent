@@ -3,6 +3,8 @@
 [![Changelog](https://img.shields.io/badge/changelog-C3B091?style=for-the-badge)](/docs/CHANGELOG.md)
 [![Requirements](https://img.shields.io/badge/requirements-C3B091?style=for-the-badge)](/docs/requirements.md)
 [![Architecture](https://img.shields.io/badge/architecture-C3B091?style=for-the-badge)](/docs/architecture.md)
+[![Instructions](https://img.shields.io/badge/instructions-C3B091?style=for-the-badge)](/docs/instructions.md)
+[![Testing](https://img.shields.io/badge/testing-C3B091?style=for-the-badge)](/docs/testing.md)
 [![Time Tracking](https://img.shields.io/badge/time%20tracking-C3B091?style=for-the-badge)](/docs/timetracking.md)
 [![AI Usage](https://img.shields.io/badge/ai%20usage-C3B091?style=for-the-badge)](/docs/ai.md) <br>
 [![GitHub Release](https://img.shields.io/github/v/release/hatonlee/indolent?include_prereleases&style=for-the-badge)](https://github.com/hatonlee/indolent/releases/tag/v0.1.2)
