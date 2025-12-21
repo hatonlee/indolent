@@ -7,18 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.4] - 2025-12-21
+
+## [0.2.0] - 2025-12-21
+
+### Added
+- Ability to set habit start time. Used to determine when the first interval starts. Defaults to current time.
+- Interval information to each habit in the main list.
 
 ### Changed
-- Improved habit completion tracking logic
+- Improved habit completion tracking logic.
+  Now tracks completions based on intervals rather than based on the last completion time.
+- Updated UI
 
 ### Fixed
 - Scrolling in the main habits list
+
 
 ## [0.1.3] - 2025-12-02
 
 ### Changed
 - Refactored UI into components
+
 
 ## [0.1.2] - 2025-12-02
 
@@ -29,11 +38,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Habit display
 
+
 ## [0.1.1] - 2025-11-25
 
 ### Changed
 - Internal data handling methods
 - Updated Documentation
+
 
 ## [0.1.0] - 2025-11-18
 
