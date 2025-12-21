@@ -119,7 +119,10 @@ class CreateHabitFrame(tk.Frame):
         }
 
         if callable(self.on_create):
-            self.on_create(data)
+            try:
+                self.on_create(data)
+            except ValueError as e:
+                messagebox.showerror("Error", str(e))
 
     def _validate_name(self, name):
         """Validate the habit name."""
