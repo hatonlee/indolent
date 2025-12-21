@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from typing import ContextManager
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, Session, SessionTransaction, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 
 class Base(DeclarativeBase):
@@ -21,11 +21,15 @@ class DB:
       If True, an in-memory SQLite database is used.
     """
 
-    def __init__(self, db_path: str, memory: bool = False) -> None:
+    def __init__(self, db_path: str | None = None, memory: bool = False) -> None:
         if memory:
             db_url = "sqlite+pysqlite:///:memory:"
-        else:
+        elif db_path:
             db_url = f"sqlite+pysqlite:///{db_path}"
+        else:
+            raise ValueError(
+                "Either `db_path` must be provided or `memory` must be `True`."
+            )
 
         self._engine = create_engine(db_url, echo=False)
         self._sessionmaker = sessionmaker(bind=self._engine)
