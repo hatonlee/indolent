@@ -3,8 +3,9 @@ from datetime import datetime
 
 from services.habit_service import HabitService
 
+from .widgets.actionbar import ActionBar
 from .widgets.create import CreateHabitWindow
-from .widgets.habits import HabitsCanvas
+from .widgets.habits import HabitFrame, HabitsFrame
 
 
 class WindowManager:
@@ -61,66 +62,28 @@ class MainLayout(Layout):
         self._refresh_habits()
 
     def _render_actions_frame(self):
-        actions_frame = tk.Frame(self.root, bg="grey", padx=5, pady=5)
-        actions_frame.grid(row=0, column=0, columnspan=1, sticky="ew")
-        actions_frame.columnconfigure(1, weight=1)
-
-        create_button = tk.Button(
-            actions_frame,
-            text="Create Habit",
-            command=self._open_create_window,
-            bg="grey",
-            fg="white",
-        )
-        create_button.grid(row=0, column=0, padx=5, pady=5)
-
-        view_buttons_frame = tk.Frame(actions_frame, bg="grey")
-        view_buttons_frame.grid(row=0, column=1, sticky="e")
-
-        daily_button = tk.Button(
-            view_buttons_frame,
-            text="Daily View",
-            bg="grey",
-            fg="white",
-        )
-        daily_button.grid(row=0, column=0, padx=5, pady=5, sticky="e")
-
-        weekly_button = tk.Button(
-            view_buttons_frame,
-            text="Weekly View",
-            bg="grey",
-            fg="white",
-        )
-        weekly_button.grid(row=0, column=1, padx=5, pady=5)
-
-        monthly_button = tk.Button(
-            view_buttons_frame,
-            text="Monthly View",
-            bg="grey",
-            fg="white",
-        )
-        monthly_button.grid(row=0, column=2, padx=5, pady=5)
+        actions_frame = ActionBar(self.root, self._open_create_window)
+        actions_frame.grid(row=0, column=0, sticky="ew")
+        actions_frame.columnconfigure(0, weight=1)
 
     def _render_habits_frame(self):
-        habits_frame = tk.Frame(self.root, padx=10, pady=10, bg="black")
-        habits_frame.grid(row=1, column=0, sticky="nsew")
-        habits_frame.columnconfigure(0, weight=1)
-        habits_frame.rowconfigure(0, weight=1)
-
-        self.habits_canvas = HabitsCanvas(habits_frame, complete=self._complete)
-        self.habits_canvas.configure(padx=5, pady=5, bg="blue")
-        self.habits_canvas.grid(row=0, column=0, sticky="nsew")
+        self.habits_frame = HabitsFrame(self.root, complete_cb=self._complete)
+        self.habits_frame.configure(padx=5, pady=5, bg="blue")
+        self.habits_frame.grid(row=1, column=0, sticky="nsew")
+        self.habits_frame.columnconfigure(0, weight=1)
+        self.habits_frame.rowconfigure(0, weight=1)
 
     def _refresh_habits(self):
-        self.habits_canvas.render(self._service.find())
+        self.habits_frame.render(self._service.find())
 
-    def _complete(self, habit_id: int):
-        self._service.complete(habit_id, datetime.now())
-        self._refresh_habits()
+    def _complete(self, habit_id: int, habit_frame: HabitFrame):
+        habit = self._service.complete(habit_id, datetime.now())
+        habit_frame.habit = habit
+        habit_frame.refresh_status()
 
     def _add_habit(self, habit_data: dict[str, str | list]):
-        self._service.add(habit_data)
-        self._refresh_habits()
+        new_habit = self._service.add(habit_data)
+        self.habits_frame.append_habit(new_habit)
 
     def _open_create_window(self):
         CreateHabitWindow(self.root, self._add_habit)

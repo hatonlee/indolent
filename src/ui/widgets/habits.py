@@ -49,10 +49,10 @@ def format_timedelta(td: timedelta, n: int = 2) -> str:
 class HabitFrame(tk.Frame):
     """A frame to display a habit."""
 
-    def __init__(self, parent: tk.Widget, complete, habit: Habit, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        self._complete = complete
-        self._habit = habit
+    def __init__(self, parent: tk.Misc, complete_cb, habit: Habit):
+        super().__init__(parent)
+        self._complete_cb = complete_cb
+        self.habit = habit
         self.config(padx=10, pady=10, borderwidth=3, relief="groove")
         self.columnconfigure(1, weight=1)
         self._render()
@@ -71,14 +71,14 @@ class HabitFrame(tk.Frame):
 
     def _render_name(self):
         label_name = tk.Label(
-            self.details_frame, text=self._habit.name, font=("Arial", 14, "bold")
+            self.details_frame, text=self.habit.name, font=("Arial", 14, "bold")
         )
         label_name.grid(row=0, column=0, sticky="w")
 
     def _render_description(self):
         label_description = tk.Label(
             self.details_frame,
-            text=str(self._habit.description),
+            text=str(self.habit.description),
             wraplength=200,
             justify="left",
         )
@@ -86,9 +86,9 @@ class HabitFrame(tk.Frame):
 
     def _render_status(self):
         now = datetime.now()
-        completed = self._habit.completed(now)
-        elapsed = now - self._habit.start_time
-        frequency = self._habit.frequency
+        completed = self.habit.completed(now)
+        elapsed = now - self.habit.start_time
+        frequency = self.habit.frequency
         current_interval_end = frequency - (elapsed % frequency)
 
         self.status_frame = tk.Frame(self)
@@ -113,12 +113,21 @@ class HabitFrame(tk.Frame):
         label_status.grid(row=0, column=0, sticky="e")
 
     def _render_complete_button(self, completed: bool):
-        button_complete = tk.Button(
-            self.completed_frame, text="Complete", command=self._complete
-        )
+        button_complete = tk.Button(self.completed_frame, text="Complete")
         if completed:
             button_complete.config(state="disabled")
+        else:
+            button_complete.config(command=self._on_complete_click)
         button_complete.grid(row=0, column=1, sticky="e", padx=(5, 0))
+
+        self._complete_button = button_complete
+
+    def _on_complete_click(self):
+        self._complete_cb(self.habit.id, self)
+
+    def refresh_status(self):
+        self.status_frame.destroy()
+        self._render_status()
 
     def _render_interval(self, completed: bool, current_interval_end: timedelta):
         self.interval_frame = tk.Frame(self.status_frame)
@@ -153,7 +162,7 @@ class HabitFrame(tk.Frame):
         label_frequency.grid(row=2, column=0, sticky="w")
 
     def _render_frequency_time(self):
-        time_str = format_timedelta(self._habit.frequency)
+        time_str = format_timedelta(self.habit.frequency)
         label_time = tk.Label(self.frequency_frame, text=time_str)
         label_time.grid(row=2, column=1, sticky="w")
 
@@ -161,19 +170,12 @@ class HabitFrame(tk.Frame):
 class HabitsList(tk.Frame):
     """A frame to display a list of habit frames."""
 
-    def __init__(
-        self,
-        parent: tk.Widget,
-        complete,
-        habits: list[Habit] | None = None,
-        *args,
-        **kwargs,
-    ):
-        super().__init__(parent, *args, **kwargs)
-        self._complete = complete
+    def __init__(self, parent: tk.Misc, complete_cb, habits: list[Habit] | None = None):
+        super().__init__(parent)
+        self._complete_cb = complete_cb
         self.habits = [] if habits is None else habits
         self.habit_frames = []
-        self.config(padx=10, pady=10)
+        self.config(padx=10, pady=10, background="orange")
         self._render()
 
     def _render(self):
@@ -182,11 +184,7 @@ class HabitsList(tk.Frame):
             self._render_habit_frame(habit)
 
     def _render_habit_frame(self, habit: Habit):
-        habit_frame = HabitFrame(
-            self,
-            complete=lambda habit=habit: self._complete(habit.id),
-            habit=habit,
-        )
+        habit_frame = HabitFrame(self, complete_cb=self._complete_cb, habit=habit)
         self.habit_frames.append(habit_frame)
         habit_frame.pack(fill="x", pady=(0, 10))
 
@@ -195,31 +193,81 @@ class HabitsList(tk.Frame):
             habit_frame.destroy()
         self.habit_frames = []
 
+    def add_habit(self, habit: Habit):
+        self.habits.append(habit)
+        self._render_habit_frame(habit)
 
-class HabitsCanvas(tk.Frame):
-    """A scrollable canvas to display a habit list."""
 
-    def __init__(self, parent, complete, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
-        self._complete = complete
-        canvas = tk.Canvas(self)
-        self._habits_list = HabitsList(canvas, complete=self._complete)
-        self._habits_list.bind(
-            "<Configure>",
-            lambda _: canvas.configure(scrollregion=canvas.bbox("all")),
+class HabitsFrame(tk.Frame):
+    """A scrollable frame to display a list of habits."""
+
+    def __init__(self, parent, complete_cb):
+        super().__init__(parent)
+        self._complete_cb = complete_cb
+
+        # create canvas and scrollbar
+        self._canvas = tk.Canvas(self, height=400)
+        scrollbar = tk.Scrollbar(self, orient="vertical", command=self._canvas.yview)
+        self._canvas.configure(yscrollcommand=scrollbar.set)
+
+        # place canvas and scrollbar
+        self._canvas.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        # create habits list frame inside canvas
+        self.habits_list = HabitsList(self._canvas, complete_cb=self._complete_cb)
+        self.habits_list_window = self._canvas.create_window(
+            (0, 0), window=self.habits_list, anchor="nw"
         )
-        canvas.create_window((0, 0), window=self._habits_list, anchor="nw")
 
-        scrollbar = tk.Scrollbar(self, orient="vertical", command=canvas.yview)
-        canvas.configure(yscrollcommand=scrollbar.set)
+        # resizing events
+        self.habits_list.bind("<Configure>", self._habits_list_configure)
+        self._canvas.bind("<Configure>", self._canvas_configure)
 
-        canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill=tk.Y)
-        self._habits_list.pack(fill="both", expand=True)
+        # bind mousewheel when pointer is over the canvas so scrollwheel scrolls the canvas
+        self._canvas.bind("<Enter>", self._bind_mousewheel)
+        self._canvas.bind("<Leave>", self._unbind_mousewheel)
+
+    def _habits_list_configure(self, event: tk.Event[HabitsList]):
+        self._canvas.configure(scrollregion=self._canvas.bbox("all"))
+
+    def _canvas_configure(self, event: tk.Event[tk.Canvas]):
+        self._canvas.itemconfig(self.habits_list_window, width=event.width)
+
+    def _bind_mousewheel(self, event):
+        # linux
+        self._canvas.bind_all("<Button-4>", self._canvas_mousewheel)
+        self._canvas.bind_all("<Button-5>", self._canvas_mousewheel)
+
+        # windows, macos
+        self._canvas.bind_all("<MouseWheel>", self._canvas_mousewheel)
+
+    def _unbind_mousewheel(self, event):
+        try:
+            self._canvas.unbind_all("<MouseWheel>")
+            self._canvas.unbind_all("<Button-4>")
+            self._canvas.unbind_all("<Button-5>")
+        except Exception:
+            pass
+
+    def _canvas_mousewheel(self, event):
+        # linux - event.num
+        if getattr(event, "num", None) == 4:
+            self._canvas.yview_scroll(-1, "units")
+        elif getattr(event, "num", None) == 5:
+            self._canvas.yview_scroll(1, "units")
+
+        # windows, macos - event.delta
+        else:
+            delta = int(-event.delta / 120)
+            self._canvas.yview_scroll(delta, "units")
 
     def render(self, habits: list[Habit]):
-        self._habits_list.habits = habits
-        self._habits_list._render()
+        self.habits_list.habits = habits
+        self.habits_list._render()
+
+    def append_habit(self, habit: Habit):
+        self.habits_list.add_habit(habit)
 
 
 class DailyHabits:
