@@ -4,18 +4,15 @@
 indolent is a python app for creating and keeping track of habits (recurring tasks).
 
 ## Functionality
-List of planned functionality in no particular order. Completed items are marked with the version the item was implemented.
-- Creating habits
-    - [x] Title [0.1.0]
-    - [x] Description [0.1.0]
-    - [x] Done [0.1.2]
-    - [x] Frequency [0.1.2]
-    - [ ] Priority
-    - [ ] Category
+- New habits can be created in a separate window by clicking the `New Habit`-button
+  Habits have a custom title, description, starting time and an interval length.
+  Input validation is performed on the created habits
+- Created habits are stored between app sessions in a database
+- A scrollable list of all habits is displayed in the home page.
+  The habits display their name and description and a completion status
+- For each interval from the configured starting time, the habit can be marked as completed for that interval.
 
-- Viewing habits
-    - [x] All habits [0.1.0]
-    - [x] Undone view [0.1.2]
-    - [ ] Daily view
-    - [ ] Weekly view
-    - [ ] Monthly view
+## Planned Functionality
+- Searching and ordering habits based on any fields
+- Support for priorities and categories for habits
+- Grouping habits based on their next due-time (daily, weekly and monthly views e.g.)
