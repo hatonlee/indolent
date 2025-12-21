@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2025-12-21
+
+### Changed
+- Improved habit completion tracking logic
+
+### Fixed
+- Scrolling in the main habits list
+
 ## [0.1.3] - 2025-12-02
 
 ### Changed

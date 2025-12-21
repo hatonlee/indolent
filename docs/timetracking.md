@@ -6,4 +6,7 @@
 |25.11.|4.5h|Refactoring app code|
 |02.12.|4.0h|Expand app functionality|
 |09.12.|3.0h|Refactoring ui code|
-|total|11h|all|
+|19.12.|5.0h|Starting implementation of improved completion tracking|
+|20.12.|6.0h|Finishing completion tracking rework. Fixing and improving UI|
+|21.12.|3.0h|Writing documentation|
+|total|32h|all|

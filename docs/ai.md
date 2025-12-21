@@ -2,6 +2,10 @@
 Used ChatGPT GPT-5 via [ChatGPT](https://chatgpt.com) and GPT-4-o-mini/GPT-4.1 via [CurreChat](https://curre.helsinki.fi/chat) and the GitHub Copilot -extension in Visual Studio Code.
 
 
+##### [0.1.4] - 2025-12-21
+- For improving mermaid diagrams in the architecture documentation.
+- For designing the UI components and views structure including the WindowManager class.
+
 ### [0.1.3] - 2025-12-09
 - For planning the refactoring of the ui into components and views. Used the copilot chat "Plan"-feature to develop a plan and structure for the refactoring.
 - For rewriting functions in the new components to match the new structure.
