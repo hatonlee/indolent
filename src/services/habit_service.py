@@ -1,28 +1,29 @@
 """Service layer class for habit."""
 
-from repositories.habit_repository import HabitRepository, default_habit_repository
+from datetime import datetime
+
+from models.habit import Habit
+from repositories.habit_repository import HabitRepository
 
 
 class HabitService:
-    """Provide methods for getting and creating habits."""
+    """Service for managing habits."""
 
-    def __init__(self, repo: HabitRepository = default_habit_repository):
+    def __init__(self, repo: HabitRepository):
         self._repo = repo
 
-    def get_all(self):
-        """Get all habits with their done status."""
-        return self._repo.get_all()
+    def get(self, habit_id: int) -> Habit | None:
+        return self._repo.get(habit_id)
 
-    def add(self, habit_data):
+    def find(self, **filters: str) -> list[Habit]:
+        return self._repo.find(**filters)
+
+    def add(self, habit_data: dict[str, str | list]) -> Habit:
         """Add a new habit"""
-        if self._repo.get_by_name(habit_data["name"]):
+        if self._repo.find(name=str(habit_data.get("name"))):
             raise ValueError("Habit with the same name already exists.")
 
         return self._repo.add(habit_data)
 
-    def mark_done(self, habit_id: int):
-        """Mark a habit as done."""
-        return self._repo.mark_done(habit_id)
-
-
-default_habit_service = HabitService()
+    def complete(self, habit_id: int, time: datetime) -> Habit:
+        return self._repo.complete(habit_id, time)

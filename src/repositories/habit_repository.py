@@ -1,72 +1,71 @@
-"""Repository layer class for habit."""
+"""Repository layer class for habits."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy import delete, select
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import joinedload
 
-from db import session as default_session
-from models.habit import Habit
+from db import DB
+from models.habit import Completion, Habit
 
 
 class HabitRepository:
-    """Provide methods for getting and creating habits."""
+    """API for performing CRUD operations on habits in the database."""
 
-    def __init__(self, session: sessionmaker = default_session):
-        self._session = session
+    def __init__(self, db: DB):
+        self._db = db
 
-    def get_all(self):
-        """Get all habits with their done status."""
-        with self._session() as session:
-            habits = list(session.scalars(select(Habit)))
+    def _build_query(self, **filters: str):
+        stmt = select(Habit)
+        for key, value in filters.items():
+            if not hasattr(Habit, key):
+                raise ValueError(f"Invalid filter: '{key}'")
+            if value is None:
+                continue
+            attr = getattr(Habit, key)
+            stmt = stmt.where(attr == value)
 
-        for habit in habits:
-            habit.done = self._get_done_status(habit)
+        return stmt
+
+    def get(self, habit_id: int | None = None) -> Habit | None:
+        with self._db.session() as session:
+            stmt = select(Habit).options(joinedload(Habit.completions))
+            if habit_id is None:
+                habit = session.scalar(stmt)
+            else:
+                stmt = stmt.where(Habit.id == habit_id)
+                habit = session.scalar(stmt)
+
+        return habit
+
+    def find(self, **filters: str) -> list[Habit]:
+        with self._db.session() as session:
+            stmt = self._build_query(**filters)
+            stmt = stmt.options(joinedload(Habit.completions))
+            habits = list(session.scalars(stmt).unique())
+
         return habits
 
-    def get(self, habit_id: int = None):
-        """Get habit with a specific id. The first habit is returned if id is not specified"""
-        with self._session() as session:
-            if habit_id is None:
-                habit = session.scalar(select(Habit))
-            else:
-                habit = session.scalar(select(Habit).where(Habit.id == habit_id))
-            return habit
-
-    def get_by_name(self, name: str):
-        """Get habit with a specific name"""
-        with self._session() as session:
-            habit = session.scalar(select(Habit).where(Habit.name == name))
-            return habit
-
-    def add(self, habit_data: dict):
+    def add(self, habit_data: dict) -> Habit:
         """Add a new habit to the database"""
-        with self._session.begin() as session:
+        with self._db.begin() as session:
             habit = Habit(**habit_data)
             session.add(habit)
-            return habit
 
-    def mark_done(self, habit_id: int):
-        """Mark a habit as done by updating its last_done timestamp."""
-        with self._session.begin() as session:
+        return habit
+
+    def complete(self, habit_id: int, time: datetime) -> Habit:
+        """Add a completion entry for the habit if one does not already exist for the specified interval."""
+        with self._db.begin() as session:
             habit = session.scalar(select(Habit).where(Habit.id == habit_id))
             if not habit:
                 raise ValueError(f"Habit with id '{habit_id}' not found")
-            habit.last_done = datetime.now()
-            return habit
+            if not habit.completed(time):
+                habit.completions.append(Completion(time=time))
 
-    def delete_all(self):
+        return habit
+
+    def delete_all(self) -> None:
         """Delete all habits from the database."""
-        with self._session.begin() as session:
+        with self._db.begin() as session:
             session.execute(delete(Habit))
-
-    def _get_done_status(self, habit: Habit):
-        """Determine if a habit is done based on its last_done and frequency."""
-        if habit.last_done:
-            time_diff = datetime.now() - habit.last_done
-            frequency = timedelta(minutes=int(habit.frequency))
-            return time_diff < frequency
-        return False
-
-
-default_habit_repository = HabitRepository()
